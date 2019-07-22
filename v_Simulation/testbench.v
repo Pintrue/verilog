@@ -2,7 +2,12 @@
 
 module trig_tb;
 	reg [63:0] temp_out;
+	reg unsigned [32:0] temp_rad_out;
 	real a;
+
+		reg[4:0] a1 = 5'b0011_0; //3 with 1 Fractional bit
+		reg[4:0] b = 5'b00010;  //2 no fractional bits
+		reg[9:0] c;
 
 
 	trig T0();
@@ -26,6 +31,10 @@ module trig_tb;
 		// T0.cosineInt32(3523215360, temp_out);
 		T0.cosineInt32(4294967292, temp_out);
 		$display("Value %d is %f after conversion", temp_out, T0.toVal32(temp_out));
+
+		T0.convertRadToInt(-3.665191429, temp_rad_out);
+
+		$display("Radians convert to integer encoding %d", temp_rad_out);
 	end
 
 	// initial begin
