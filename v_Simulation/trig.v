@@ -1,3 +1,7 @@
+`ifndef TRIG_V
+`define TRIG_V
+
+
 `define RADIANS_LUT_SELECT_MASK_32 32'hFFF00000
 `define RADIANS_LUT_SHIFT_OFFSET_32 20
 `define TRIG_ENC_MAX 4294967295
@@ -98,3 +102,5 @@ module trig();
 	endtask
 	
 endmodule
+
+`endif
