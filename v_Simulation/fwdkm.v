@@ -7,13 +7,21 @@
 `define initJntAngle0 0
 `define initJntAngle1 112855247
 `define initJntAngle2 7877904265
+
 `define _initJntAngle0 -1104420162
 `define _initJntAngle1 -991564915
 `define _initJntAngle2 6773484103
+
 `define baseHeightInt 290
 `define linkLengthInt1 524
 `define linkLengthInt2 1064
 `define linkLengthInt3 1687
+
+`define linkLength1 5.240229002629561
+`define linkLength2 10.636728820459794
+`define linkLength3 16.867127793433
+
+`define INT_TRIG_SCALE_RANGE 4294967295
 
 
 module fwdkm();
@@ -50,12 +58,12 @@ module fwdkm();
 		input unsigned [31:0] jnt_int_0;
 		input unsigned [31:0] jnt_int_1;
 		input unsigned [31:0] jnt_int_2;
+
 		output unsigned [63:0] ee_pos_x;
 		output unsigned [63:0] ee_pos_y;
 		output unsigned [63:0] ee_pos_z;
 
 		// local variables
-		reg unsigned [31:0] _jnt_int_0;
 		reg unsigned [63:0] d2;
 		reg unsigned [63:0] d3;
 		reg unsigned [63:0] d4;
@@ -67,6 +75,7 @@ module fwdkm();
 		reg [63:0] temp_out;
 		reg signed [63:0] cos_temp_out;
 
+		// task code
 		begin
 			// #1 reset = 1'b1;
 			reset = 1'b1;
@@ -106,7 +115,7 @@ module fwdkm();
 
 			TRIG.cosineInt32(_a1, temp_out);
 			ee_pos_x = d1 * temp_out;
-			
+
 			// $display("d1 = %d", d1);
 			// $display("d2 = %d", d2);
 			// $display("d3 = %d", d3);			
@@ -117,6 +126,35 @@ module fwdkm();
 			// $display("x = %d", ee_pos_x);
 		end
 	endtask
+
+
+	task revertPose32;
+		// input and output
+		input unsigned [63:0] ee_pos_int_x;
+		input unsigned [63:0] ee_pos_int_y;
+		input unsigned [63:0] ee_pos_int_z;
+
+		output signed [63:0] ee_pos_x;
+		output signed [63:0] ee_pos_y;
+		output signed [63:0] ee_pos_z;
+
+		//local variable
+		real m, b;
+
+		real revert_d1;
+
+		// task code
+		begin
+			m = `INT_TRIG_SCALE_RANGE / 2.0;
+			b = `INT_TRIG_SCALE_RANGE / 2.0;
+			// $display("m = %f, b = %f", m, b);
+
+			// revert_d1 = d1 / 100.0 - 
+
+		end
+
+	endtask
+
 
 endmodule
 

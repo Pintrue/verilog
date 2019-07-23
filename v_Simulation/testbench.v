@@ -7,6 +7,7 @@ module trig_tb;
 
 	reg signed [31:0] jntInput[0:2];
 	reg unsigned [63:0] temp_eePos[0:2];
+	reg signed [63:0] revert_eePos[0:2];
 
 
 	trig T0();
@@ -42,6 +43,8 @@ module trig_tb;
 		// T0.getEEPosByJntsInt32(jntInput, temp_eePos);
 		T1.getEEPoseByJntsInt32(jntInput[0], jntInput[1], jntInput[2], temp_eePos[0], temp_eePos[1], temp_eePos[2]);
 		$display("x = %d, y = %d, z = %d", temp_eePos[0], temp_eePos[1], temp_eePos[2]);
+
+		T1.revertPose32(temp_eePos[0], temp_eePos[1], temp_eePos[2], revert_eePos[0], revert_eePos[1], revert_eePos[2]);
 	end
 
 	// initial begin
