@@ -4,27 +4,31 @@
 
 `include "trig.v"
 
-`define initJntAngle0 0
-`define initJntAngle1 112855247
-`define initJntAngle2 7877904265
+`define INIT_JNT_ANGLE_0 0
+`define INIT_JNT_ANGLE_1 112855247
+`define INIT_JNT_ANGLE_2 7877904265
 
-`define _initJntAngle0 -1104420162
-`define _initJntAngle1 -991564915
-`define _initJntAngle2 6773484103
+`define _INIT_JNT_ANGLE_0 -1104420162
+`define _INIT_JNT_ANGLE_1 -991564915
+`define _INIT_JNT_ANGLE_2 6773484103
 
-`define baseHeightInt 290
-`define linkLengthInt1 524
-`define linkLengthInt2 1064
-`define linkLengthInt3 1687
+`define BASE_HEIGHT_INT 290
+`define LINK_LENGTH_INT_1 524
+`define LINK_LENGTH_INT_2 1064
+`define LINK_LENGTH_INT_3 1687
 
-`define linkLength1 5.240229002629561
-`define linkLength2 10.636728820459794
-`define linkLength3 16.867127793433
+`define BASE_HEIGHT 2.9
+`define LINK_LENGTH_1 5.240229002629561
+`define LINK_LENGTH_2 10.636728820459794
+`define LINK_LENGTH_3 16.867127793433
+
+`define LINK_LENGTH_SCALE 100.0
 
 `define INT_TRIG_SCALE_RANGE 4294967295
 
 
 module fwdkm();
+
 	reg clk, reset, enable;
 
 	// member variables
@@ -44,12 +48,13 @@ module fwdkm();
 	always @ (posedge reset) begin: init_km
 	// initial begin: init_km
 		// $display("inside the 'init_km' block");
-		a1 = `initJntAngle0;
-		a3 = `initJntAngle1;
-		a4 = `initJntAngle2;
-		_a1 = `_initJntAngle0;
-		_a3 = `_initJntAngle1;
-		_a4 = `_initJntAngle2;
+		a1 = `INIT_JNT_ANGLE_0;
+		a3 = `INIT_JNT_ANGLE_1;
+		a4 = `INIT_JNT_ANGLE_2;
+		_a1 = `_INIT_JNT_ANGLE_0;
+		_a3 = `_INIT_JNT_ANGLE_1;
+		_a4 = `_INIT_JNT_ANGLE_2;
+		// #1 $display("a3 = %d", a3);
 	end
 
 
@@ -72,14 +77,13 @@ module fwdkm();
 		reg unsigned [63:0] d7;
 		reg unsigned [63:0] d8;
 
-		reg [63:0] temp_out;
-		reg signed [63:0] cos_temp_out;
+		reg [63:0] cos_temp_out;
+		// reg signed [63:0] cos_temp_out;
 
 		// task code
 		begin
-			// #1 reset = 1'b1;
 			reset = 1'b1;
-			// #1 $display("a1 = %d", a1);
+
 			#1 a1 = a1 + jnt_int_0;
 			a3 = a3 + jnt_int_1;
 			a4 = a4 - jnt_int_2 - jnt_int_1;
@@ -89,32 +93,32 @@ module fwdkm();
 
 			// #1 $display("a1 = %d", a1);
 
-			d2 = `baseHeightInt;
-			d3 = `linkLengthInt1 * 3581808896;	// cosineInt32(_a2) 
+			d2 = `BASE_HEIGHT_INT;
+			d3 = `LINK_LENGTH_INT_1 * 3581808896;	// cosineInt32(_a2) 
 
-			TRIG.cosineInt32(_a3, temp_out);
-			d4 = `linkLengthInt2 * temp_out;
+			TRIG.cosineInt32(_a3, cos_temp_out);
+			d4 = `LINK_LENGTH_INT_2 * cos_temp_out;
 
-			TRIG.cosineInt32(_a4, temp_out);
-			d5 = `linkLengthInt3 * temp_out;
+			TRIG.cosineInt32(_a4, cos_temp_out);
+			d5 = `LINK_LENGTH_INT_3 * cos_temp_out;
 
 			ee_pos_y = d2 + d3 + d4 + d5;
 
-			TRIG.cosineInt32(a4, temp_out);
-			d6 = `linkLengthInt3 * temp_out;
+			TRIG.cosineInt32(a4, cos_temp_out);
+			d6 = `LINK_LENGTH_INT_3 * cos_temp_out;
 
-			TRIG.cosineInt32(a3, temp_out);
-			d7 = `linkLengthInt2 * temp_out;
+			TRIG.cosineInt32(a3, cos_temp_out);
+			d7 = `LINK_LENGTH_INT_2 * cos_temp_out;
 
-			d8 = `linkLengthInt1 * 3745731782;	//cosineInt32(a2)
+			d8 = `LINK_LENGTH_INT_1 * 3745731782;	//cosineInt32(a2)
 
 			d1 = d6 - d7 + d8;
 
-			TRIG.cosineInt32(a1, temp_out);
-			ee_pos_z = d1 * temp_out;
+			TRIG.cosineInt32(a1, cos_temp_out);
+			ee_pos_z = d1 * cos_temp_out;
 
-			TRIG.cosineInt32(_a1, temp_out);
-			ee_pos_x = d1 * temp_out;
+			TRIG.cosineInt32(_a1, cos_temp_out);
+			ee_pos_x = d1 * cos_temp_out;
 
 			// $display("d1 = %d", d1);
 			// $display("d2 = %d", d2);
@@ -134,27 +138,36 @@ module fwdkm();
 		input unsigned [63:0] ee_pos_int_y;
 		input unsigned [63:0] ee_pos_int_z;
 
-		output signed [63:0] ee_pos_x;
-		output signed [63:0] ee_pos_y;
-		output signed [63:0] ee_pos_z;
+		output real ee_pos_x;
+		output real ee_pos_y;
+		output real ee_pos_z;
 
 		//local variable
 		real m, b;
-
+		
 		real revert_d1;
+
+		reg [63:0] cos_temp_out;
 
 		// task code
 		begin
 			m = `INT_TRIG_SCALE_RANGE / 2.0;
 			b = `INT_TRIG_SCALE_RANGE / 2.0;
-			// $display("m = %f, b = %f", m, b);
 
-			// revert_d1 = d1 / 100.0 - 
+			revert_d1 = (d1 / `LINK_LENGTH_SCALE - (`LINK_LENGTH_3 - `LINK_LENGTH_2 + `LINK_LENGTH_1) * b) / m;
 
+			TRIG.cosineInt32(a1, cos_temp_out);
+			ee_pos_z = revert_d1 * TRIG.toVal32(cos_temp_out);
+
+			TRIG.cosineInt32(_a1, cos_temp_out);
+			ee_pos_x = revert_d1 * TRIG.toVal32(cos_temp_out);
+
+			ee_pos_y = ee_pos_int_y / `LINK_LENGTH_SCALE - `BASE_HEIGHT;
+			ee_pos_y = ee_pos_y - (`LINK_LENGTH_1 + `LINK_LENGTH_2 + `LINK_LENGTH_3) * b;
+			ee_pos_y = ee_pos_y / m + `BASE_HEIGHT;
 		end
 
 	endtask
-
 
 endmodule
 

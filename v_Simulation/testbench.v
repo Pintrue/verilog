@@ -1,13 +1,15 @@
 `include "trig.v"
 `include "fwdkm.v"
 
+
 module trig_tb;
+
 	reg [63:0] temp_out;
 	reg unsigned [32:0] temp_rad_out;
 
 	reg signed [31:0] jntInput[0:2];
 	reg unsigned [63:0] temp_eePos[0:2];
-	reg signed [63:0] revert_eePos[0:2];
+	real revert_eePos[0:2];
 
 
 	trig T0();
@@ -38,16 +40,13 @@ module trig_tb;
 		$display("Value %d is %f after conversion", temp_out, T0.toVal32(temp_out));
 
 		T0.convertRadToInt(-3.665191429, temp_rad_out);
-
 		$display("Radians convert to integer encoding %d", temp_rad_out);
-		// T0.getEEPosByJntsInt32(jntInput, temp_eePos);
+
 		T1.getEEPoseByJntsInt32(jntInput[0], jntInput[1], jntInput[2], temp_eePos[0], temp_eePos[1], temp_eePos[2]);
 		$display("x = %d, y = %d, z = %d", temp_eePos[0], temp_eePos[1], temp_eePos[2]);
 
 		T1.revertPose32(temp_eePos[0], temp_eePos[1], temp_eePos[2], revert_eePos[0], revert_eePos[1], revert_eePos[2]);
+		$display("Reverted: x = %f, y = %f, z = %f", revert_eePos[0], revert_eePos[1], revert_eePos[2]);
 	end
-
-	// initial begin
-	// end
 
 endmodule
